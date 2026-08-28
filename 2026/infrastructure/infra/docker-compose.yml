@@ -1,0 +1,39 @@
+name: sdt-iot-lab
+
+services:
+  mosquitto:
+    image: eclipse-mosquitto:2.1.2-alpine
+    container_name: sdt-mosquitto
+    restart: unless-stopped
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./mosquitto/config:/mosquitto/config:ro
+      - mosquitto_data:/mosquitto/data
+      - mosquitto_log:/mosquitto/log
+    networks:
+      - sdt_iot
+
+  nodered:
+    image: nodered/node-red:4.1.13-22
+    container_name: sdt-nodered
+    restart: unless-stopped
+    depends_on:
+      - mosquitto
+    ports:
+      - "1880:1880"
+    environment:
+      - TZ=Europe/Moscow
+    volumes:
+      - nodered_data:/data
+    networks:
+      - sdt_iot
+
+networks:
+  sdt_iot:
+    driver: bridge
+
+volumes:
+  mosquitto_data:
+  mosquitto_log:
+  nodered_data:
